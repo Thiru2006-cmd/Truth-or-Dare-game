@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truth or Dare</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);   
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+    .container {
+      background: rgba(255,255,255,0.9);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+      position: relative;
+    }
+    h1, h2 {
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    input, button, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    input:focus, button:focus, textarea:focus {
+      outline: none;
+      transform: scale(1.02);
+      border-color: #f5576c;
+    }
+    button {
+      background: #f5576c;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #f093fb;
+      transform: translateY(-2px);
+    }
+    .hidden { display: none; }
+    #question {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 500;
+      min-height: 40px;
+    }
+    /* Welcome page: vibrant game-themed background */
+    #welcome {
+      background-color: white;
+      color: #040404;
+    }
+    #welcome .container {
+      background: url('https://img.freepik.com/free-photo/programming-background-collage_23-2149901778.jpg') center/cover no-repeat;
+    }
+    /* Decorative icon */
+    .container::before {
+      content: '\f2c2';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 60px;
+      color: rgba(0,0,0,0.05);
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      transform: rotate(20deg);
+    }
+  </style>
+</head>
+<body>
+  <div id="registration" class="container animate__animated animate__fadeInDown">
+    <h1>Register</h1>
+    <input type="text" id="regName" placeholder="Name">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="number" id="regAge" placeholder="Age">
+    <input type="text" id="regGender" placeholder="Gender">
+    <input type="tel" id="regPhone" placeholder="Phone">
+    <input type="text" id="regAddress" placeholder="Address">
+    <input type="password" id="regPassword" placeholder="Password">
+    <button onclick="registerUser()"><i class="fas fa-user-plus"></i> Register</button>
+  </div>
+
+  <div id="login" class="container hidden animate__animated animate__fadeInDown">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="loginUser()"><i class="fas fa-sign-in-alt"></i> Login</button>
+  </div>
+
+  <div id="welcome" class="container hidden animate__animated animate__zoomIn">
+    <h2>Welcome <span id="welcomeUser"></span>!</h2>
+    <p>Ready to play <strong>Truth or Dare</strong>?</p>
+    <button onclick="startGame()"><i class="fas fa-play"></i> Start Game</button>
+  </div>
+
+  <div id="game" class="container hidden animate__animated animate__zoomIn">
+    <h2><i class="fas fa-user-circle"></i><span id="player"></span></h2>
+    <p>Pick one:</p>
+    <button onclick="playGame('truth')"><i class="fas fa-feather-alt"></i> Truth</button>
+    <button onclick="playGame('dare')"><i class="fas fa-fire"></i> Dare</button>
+    <p id="question"></p>
+    <!-- Answer input box -->
+    <textarea id="answerBox" class="hidden" placeholder="Type your answer here..."></textarea>
+    <button id="submitAnswer" class="hidden" onclick="submitAnswer()"><i class="fas fa-paper-plane"></i> Submit Answer</button>
+  </div>
+
+  <script>
+    function registerUser() {
+      const fields = ['Name','Email','Age','Gender','Phone','Address','Password'];
+      const ids = ['regName','regEmail','regAge','regGender','regPhone','regAddress','regPassword'];
+      let userData = {};
+      for(let i=0;i<ids.length;i++){
+        let val=document.getElementById(ids[i]).value.trim();
+        if(!val){ alert(`Please enter your ${fields[i]}`); return; }
+        userData[fields[i].toLowerCase()] = val;
+      }
+      localStorage.setItem('user', JSON.stringify(userData));
+      showSection('login');
+    }
+
+    function loginUser() {
+      let user = JSON.parse(localStorage.getItem('user'));
+      let email=document.getElementById('loginEmail').value;
+      let pass=document.getElementById('loginPassword').value;
+      if(user && email===user.email && pass===user.password){
+        document.getElementById('welcomeUser').innerText = user.name;
+        showSection('welcome');
+      } else alert('Invalid credentials');
+    }
+
+    function startGame(){
+      let user = JSON.parse(localStorage.getItem('user'));
+      document.getElementById('player').innerText=user.name;
+      showSection('game');
+    }
+
+    function playGame(choice){
+      const truths=[
+        "What's your biggest fear?","Your funniest childhood memory?",
+        "Ever had a crush on someone here?","What's a secret talent?","Most embarrassing moment?"
+      ];
+      const dares=[
+        "Sing your favorite song!","Do 10 push-ups!","Dance like a robot!",
+        "Impersonate your favorite celebrity!","Speak in a silly accent for 1 min!"
+      ];
+      const q=(choice==='truth'?truths:dares)[Math.floor(Math.random()* (choice==='truth'?truths.length:dares.length))];
+      document.getElementById('question').innerText=q;
+      // Show answer box & submit
+      document.getElementById('answerBox').classList.remove('hidden');
+      document.getElementById('submitAnswer').classList.remove('hidden');
+    }
+
+    function submitAnswer() {
+      const ans = document.getElementById('answerBox').value.trim();
+      if (!ans) { alert('Please type your answer'); return; }
+      alert('Your answer: ' + ans);
+      document.getElementById('answerBox').value = '';
+      document.getElementById('answerBox').classList.add('hidden');
+      document.getElementById('submitAnswer').classList.add('hidden');
+    }
+
+    function showSection(id){
+      ['registration','login','welcome','game'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
